@@ -1,4 +1,6 @@
 <?php
+
+$_SESSION["login"] = 0;
 //! Controller
 /*
  * 控制器將$_GET['action']中不同的引數(list、post、delete)
@@ -18,6 +20,10 @@ class Controller {
      */
     function __construct (&$dao) { 
         $this->model = new Model($dao);
+        $this->view = new View();
+        $this->view->sign();
+        $this->view->banner();
+        
     }
     
     function getView() {    //獲取View函式
@@ -34,10 +40,13 @@ class listController extends Controller{   //extends表示繼承
         parent::__construct($dao);  //繼承其父類的建構函式然後執行(執行1號)
         //該行的含義可以簡單理解為:
         //將其父類的建構函式程式碼複製過來
-        $page_array = $this->model->pageArray($page);
+        $this->view->sidebar();
+        
+        $page_array = $this->model->pageArray($page, "list");
         $notes = $this->model->listNote($page, $page_array["per"]);
         //執行model裡的listNote function
         //取得全部留言的result
+        
         $this->view = new listView($notes);
         $this->view->viewMsgResult($notes);
         $this->view->viewPage("list", $page_array);
@@ -49,11 +58,12 @@ class searchController extends Controller{   //extends表示繼承
         parent::__construct($dao);  //繼承其父類的建構函式
         //該行的含義可以簡單理解為:
         //將其父類的建構函式程式碼複製過來
+        $this->view->sidebar();
         if(empty($search)){
             $this->view = new searchView();
         }
         else{
-            $page_array = $this->model->pageArray($page, $search);
+            $page_array = $this->model->pageArray($page, "search", $search);
             $notes = $this->model->searchNote($page, $page_array["per"], $search);
             $this->view = new searchView($search);
             $this->view->viewMsgResult($notes);
@@ -72,6 +82,7 @@ class searchController extends Controller{   //extends表示繼承
 class postController extends Controller{
     function __construct ($dao) {//連資料庫
         parent::__construct($dao);//建立model
+        $this->view->sidebar();
         $msg_array = $this->model->postNote();//先收看看有沒有資料近來
         $this->view = new postView($msg_array, "post");
     }
@@ -80,6 +91,7 @@ class postController extends Controller{
 class modifyController extends Controller{
     function __construct ($dao) {//連資料庫
         parent::__construct($dao);//建立model
+        $this->view->sidebar();
         $msg_array = $this->model->modifyNote();//先收看看有沒有資料近來
         $this->view = new modifyView($msg_array);
     }
@@ -88,8 +100,51 @@ class modifyController extends Controller{
 class deleteController extends Controller{
     function __construct ($dao) {
         parent::__construct($dao);
+        $this->view->sidebar();
         $value = $this->model->deleteNote();
         $this->view = new deleteView($value);
     }
 }
+class loginController extends Controller{
+    function __construct ($dao) {
+        parent::__construct($dao);
+        $member_array = $this->model->loginNote();
+        $this->view = new loginView($member_array);
+    }
+}
+class signupController extends Controller{
+    function __construct ($dao) {
+        parent::__construct($dao);
+        $signup_array = $this->model->signupNote();
+        $this->view = new signupView($signup_array);
+    }
+}
+class modifyMyDataController extends Controller{
+    function __construct ($dao) {
+        parent::__construct($dao);
+        $this->view->sidebar($member = 1);
+        $md_array = $this->model->modifyMyDataNote();
+        $this->view = new modifyMyDataView($md_array);
+    }
+}
+class modifyMyPwdController extends Controller{
+    function __construct ($dao) {
+        parent::__construct($dao);
+        $this->view->sidebar($member = 1);
+        $mdpwd_array = $this->model->modifyMyPwdNote();
+        $this->view = new modifyMyPwdView($mdpwd_array);
+    }
+}
+class listMyMsgController extends Controller{
+    function __construct ($dao, $page) {
+        parent::__construct($dao);
+        $this->view->sidebar($member = 1);
+        $page_array = $this->model->pageArray($page, "listMyMsg");
+        $notes = $this->model->listMyMsgNote($page, $page_array["per"]);
+        $this->view = new listMyMsgView();
+        $this->view->viewMsgResult($notes);
+        $this->view->viewPage("listMyMsg", $page_array);
+    }
+}
+
 ?>

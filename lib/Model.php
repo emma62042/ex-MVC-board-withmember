@@ -38,29 +38,28 @@ class Model {
         //執行dataAccess裡的function
         return $notes;
     }
-    function checkAllRows() {
-        $data_rows = $this->dao->rowsNum("  SELECT *
-                                            FROM center88_board
-                                            ORDER BY time DESC");
-        //執行dataAccess裡的function
-        return $data_rows;
-    }
-    function checkSearchRows($search) {
-        $data_rows = $this->dao->rowsNum("  SELECT *
-                                            FROM center88_board
-                                            WHERE msg_title LIKE '%" . $search . "%'
-                                            ORDER BY time DESC");
-        //執行dataAccess裡的function
-        return $data_rows;
-    }
-    function pageArray($page, $search = NULL) {
+    function pageArray($page, $dowhat, $search = NULL) {
         
         $page_array["page"] = $page;
         $page_array["per"] = $per = 3;//每頁顯示筆數
-        if(empty($search)){
-            $page_array["data_rows"] = $this->checkAllRows();//所有頁數
-        }else {
-            $page_array["data_rows"] = $this->checkSearchRows($search);//所有頁數
+        switch($dowhat){
+            case "list":
+                $page_array["data_rows"] = $this->dao->rowsNum("SELECT *
+                                                                FROM center88_board
+                                                                ORDER BY time DESC");
+                break;
+            case "search":
+                $page_array["data_rows"] = $this->dao->rowsNum("SELECT *
+                                                                FROM center88_board
+                                                                WHERE msg_title LIKE '%" . $search . "%'
+                                                                ORDER BY time DESC");
+                break;
+            case "listMyMsg":
+                $page_array["data_rows"] = $this->dao->rowsNum("SELECT *
+                                                                FROM center88_board
+                                                                WHERE mb_id ='" . $_SESSION["login_id"] . "'
+                                                                ORDER BY time DESC");
+                break;
         }
         $page_array["allpages"] = ceil($page_array["data_rows"]/$per);
         return $page_array;
@@ -168,6 +167,167 @@ class Model {
                 echo "刪除失敗!!";
             }
         }
+    }
+    function loginNote() {
+        $member_array["success"] = 0;
+        $member_array["mb_id"] = "";
+        $member_array["mb_pwd"] = "";
+        $member_array["errid"] = "";
+        $member_array["errpwd"] = "";
+        if(isset($_POST["mb_id"])){ //未修改前，輸出原本內容
+            if (!empty($_POST["mb_id"]) && !empty($_POST["mb_pwd"]) ){
+                $sql = "SELECT *
+                        FROM center88_member
+                        WHERE mb_id='" . $_POST["mb_id"] . "'";
+                if($this->dao->rowsNum($sql) == 0){
+                    $member_array["mb_id"] = $_POST["mb_id"];
+                    $member_array["errid"] = "無此帳號!";
+                    return $member_array;
+                }
+                $sql = "SELECT *
+                        FROM center88_member
+                        WHERE mb_id='" . $_POST["mb_id"] . "' and mb_pwd='" . $_POST["mb_pwd"] . "'";
+                if($this->dao->rowsNum($sql) == 0){
+                    $member_array["mb_id"] = $_POST["mb_id"];
+                    $member_array["errpwd"] = "密碼錯誤!";
+                    return $member_array;
+                }else{
+                    $member_array["success"] = 1;
+                    $_SESSION["login_id"] = $_POST["mb_id"];
+                }
+            }
+            else{
+                $member_array["mb_id"] = empty($_POST["mb_id"]) ? "" : $_POST["mb_id"];
+                if(empty($_POST["mb_id"])){
+                    $member_array["errid"] = "請輸入帳號";
+                }
+                if(empty($_POST["mb_pwd"])){
+                    $member_array["errpwd"] = "請輸入密碼";
+                }
+            }
+        }
+        return $member_array;
+    }
+    function signupNote() {
+        $signup_array["success"] = 0;
+        $signup_array["set_id"] = "";
+        $signup_array["set_pwd"] = "";
+        $signup_array["check_pwd"] = "";
+        $signup_array["set_email"] = "";
+        $signup_array["errid"] = "";
+        $signup_array["errpwd"] = "";
+        $signup_array["errckpwd"] = "";
+        $signup_array["erremail"] = "";
+        if (isset($_POST["set_id"]))
+        {
+            if (!empty($_POST["set_id"]) && !empty($_POST["set_pwd"]) && !empty($_POST["check_pwd"]) && !empty($_POST["set_email"])){//不允許signup送空字串
+                if($_POST["set_pwd"] != $_POST["check_pwd"]){
+                    $signup_array["set_id"] = $_POST["set_id"];
+                    $signup_array["set_email"] = $_POST["set_email"];
+                    $signup_array["errckpwd"] = "密碼不相符";
+                    return $signup_array;
+                }
+                $sql = "SELECT * 
+                        FROM center88_member 
+                        WHERE mb_id='" . $_POST["set_id"] . "'";
+                if($this->dao->rowsNum($sql) > 0){
+                    $signup_array["set_id"] = $_POST["set_id"];
+                    $signup_array["set_email"] = $_POST["set_email"];
+                    $signup_array["errid"] = "此帳號已被使用!";
+                    return $signup_array;
+                }
+                $sql = "INSERT INTO center88_member
+                        VALUES ('" . $_POST["set_id"] . "','" . $_POST["set_pwd"] . "','" . $_POST["set_email"] . "')";
+                if ( $this->dao->query($sql) ){
+                    $signup_array["success"] = 1;
+                }
+            }else{
+                $signup_array["set_id"] = empty($_POST["set_id"]) ? "" : $_POST["set_id"];
+                $signup_array["set_email"] = empty($_POST["set_email"]) ? "" : $_POST["set_email"];
+                
+                if(empty($_POST["set_id"])){
+                    $signup_array["errid"] = "請輸入帳號";
+                }
+                if(empty($_POST["set_pwd"])){
+                    $signup_array["errpwd"] = "請輸入密碼";
+                }
+                if(empty($_POST["set_email"])){
+                    $signup_array["erremail"] = "請輸入email";
+                }
+            }
+        }
+        return $signup_array;
+    }
+    function modifyMyDataNote() {
+        $md_array["email"] = "";
+        if(isset($_POST["new_email"])){
+            $sql = "UPDATE center88_member
+                    SET mb_email='" . $_POST["new_email"] . "'
+                    WHERE mb_id= '" . $_SESSION["login_id"] . "'";
+            if ( $this->dao->query($sql) ){
+                $md_array["email"] = $_POST["new_email"];
+                echo "修改成功!! 將於3秒後跳回首頁";
+                header("Refresh: 2; URL=index.php");
+            }else{
+                echo "修改失敗!!";
+            }
+        }else{
+            $sql = "SELECT mb_email
+                    FROM center88_member
+                    WHERE mb_id = '" . $_SESSION["login_id"] . "'";
+            $notes = $this->dao->fetchRows($sql);
+            foreach ($notes as $value)
+            {
+                $md_array["email"] = isset($value["mb_email"]) ? $value["mb_email"] : "";
+            }
+        }
+        return $md_array;
+    }
+    function modifyMyPwdNote() {
+        $mdpwd_array["erroldpwd"] = "";
+        $mdpwd_array["errpwd"] = "";
+        $mdpwd_array["errckpwd"] = "";
+        if (isset($_POST["new_mb_pwd"]))
+        {
+            if (!empty($_POST["old_mb_pwd"]) && !empty($_POST["new_mb_pwd"]) && !empty($_POST["new_check_pwd"])){//不允許signup送空字串
+                $sql = "SELECT mb_pwd
+                        FROM center88_member
+                        WHERE mb_id='" . $_SESSION["login_id"] . "'";
+                $notes = $this->dao->fetchRows($sql);
+                foreach ($notes as $value)
+                {
+                    $pwd = isset($value["mb_pwd"]) ? $value["mb_pwd"] : "";
+                }
+                if($_POST["old_mb_pwd"] != $pwd){
+                    $mdpwd_array["erroldpwd"] = "密碼錯誤";
+                    return $mdpwd_array;
+                }
+                if($_POST["new_mb_pwd"] != $_POST["new_check_pwd"]){
+                    $mdpwd_array["errckpwd"] = "密碼不相符";
+                    return $mdpwd_array;
+                }
+                $sql = "UPDATE center88_member
+                        SET mb_pwd='" . $_POST["new_mb_pwd"] . "'
+                        WHERE mb_id= '" . $_SESSION["login_id"] . "'";
+                if ( $this->dao->query($sql) ){
+                    echo "修改成功!! 將於3秒後跳回首頁";
+                    header("Refresh: 2; URL=index.php");
+                }else{
+                    echo "修改失敗!!";
+                }
+            }
+        }
+        return $mdpwd_array;
+    }
+    function listMyMsgNote($page, $per) {
+        $start = ($page - 1) * $per; //每一頁開始的資料序號
+        $notes = $this->dao->fetchRows("SELECT *
+                                        FROM center88_board
+                                        WHERE mb_id ='" . $_SESSION["login_id"] . "'
+                                        ORDER BY time DESC
+                                        LIMIT ".$start.", ".$per);
+        //執行dataAccess裡的function
+        return $notes;
     }
 }
 ?>

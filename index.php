@@ -1,3 +1,4 @@
+<?php session_start();?>
 <!DOCTYPE html><!-- html 5 文件類型聲明  -->
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -8,31 +9,6 @@
 
     <body>
         <div class='container'>
-            <div class='sign'>
-            </div>
-            <div class='banner'>
-                <p><a href="index.php?action=list">center88留言板</a></p>
-            </div>
-            <div class='sidebar'>
-                <table class='bar_tb'>
-                    <tr>
-                        <td>
-                            <a href="index.php?action=post">新增留言</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a href="index.php?action=search">查詢留言</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a href="index.php?action=list">回首頁</a>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div class='content'>
             <?php
             //!index.php 總入口
             /*
@@ -79,14 +55,34 @@
                             $controller = new searchController($dao, $page = 1, $search = NULL);
                         }
                         break;
-                    case "post":
+                    case "post"://要會員
                         $controller = new postController($dao); 
                         break;
-                    case "modify":
+                    case "modify"://要會員
                         $controller = new modifyController($dao);
                         break;
-                    case "delete":
+                    case "delete"://要會員
                         $controller = new deleteController($dao);
+                        break;
+                    case "login":
+                        $controller = new loginController($dao);
+                        break;
+                    case "signup":
+                        $controller = new signupController($dao);
+                        break;
+                    case "modifyMyData":
+                        $controller = new modifyMyDataController($dao);
+                        break;
+                    case "modifyMyPwd":
+                        $controller = new modifyMyPwdController($dao);
+                        break;
+                    case "listMyMsg":
+                        if(isset($_GET["page"])){
+                            $controller = new listMyMsgController($dao, $page = $_GET["page"]);
+                        }
+                        else{
+                            $controller = new listMyMsgController($dao, $page = 1);
+                        }
                         break;
                     default:
                         $controller = new listController($dao);
@@ -96,7 +92,6 @@
                 $controller = new listController($dao, $page = 1);
             }
             ?>
-            </div>
         </div>
     </body>
 </html>

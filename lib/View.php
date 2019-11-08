@@ -4,11 +4,86 @@
  * 針對各個功能(list、post、delete)的各種View子類
  * 被Controller呼叫,完成不同功能的網頁顯示
  */
-class listView   //顯示所有留言的子類
+class View {
+    function __construct(){
+        ;
+    }
+    function sign() {
+        if(empty($_SESSION["login_id"])){?>
+            <div class='sign'>
+            	<a>會員登入</a>
+        	</div>
+        	<?php 
+        }else{?>
+            <div class='sign'>
+            	<span>歡迎<?php echo $_SESSION["login_id"] ; ?></span>&nbsp;&nbsp;
+           		<a href="index.php?action=modifyMyData">會員專區</a>&nbsp;
+           		<a>登出→</a>
+            </div>
+  <?php }
+    }
+    function banner() {?>
+    	<div class='banner'>
+			<p><a href="index.php?action=list">center88留言板</a></p>
+		</div>
+    <?php    
+    }
+    function sidebar($member = 0) {
+        if($member == 0){?>
+			<div class='sidebar'>
+                <table class='bar_tb'>
+                    <tr>
+                        <td>
+                            <a href="index.php?action=post">新增留言</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="index.php?action=search">查詢留言</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="index.php?action=list">回首頁</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+<?php }elseif($member == 1){?>
+			<div class='sidebar'>
+                <table class='bar_tb'>
+                    <tr>
+                        <td>
+                            <a href="index.php?action=modifyMyData">修改資料</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="index.php?action=modifyMyPwd">修改密碼</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="index.php?action=listMyMsg">我的留言</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="index.php?action=list">回首頁</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+    <?php
+        }
+    }
+}
+class listView    //顯示所有留言的子類
 {
-    function __construct()
-    {
-        
+    function __construct(){
+        ?>
+        <div class='content'>
+        <?php 
     }
     function viewMsgResult($notes) {
         foreach ($notes as $value)
@@ -40,12 +115,14 @@ class listView   //顯示所有留言的子類
 					<?php echo $value["nickname"] . "&nbsp;發表於&nbsp;" . $value["time"] ?>
 					</td>
 				</tr>
+				<?php if($value["mb_id"] == $_SESSION["login_id"] ){?>
 				<tr>
 					<td colspan="2" style="text-align: right;">
 						<button type="button" onclick="location.href='index.php?action=delete&id=<?php echo $value["msg_id"];?>'">刪除</button>
 						<button type="button" onclick="location.href='index.php?action=modify&id=<?php echo $value["msg_id"];?>'">修改</button>
 					</td>
 				</tr>
+		  <?php }?>
 			</table>
 			<br/>            
 			<?php 
@@ -69,12 +146,18 @@ class listView   //顯示所有留言的子類
             </p>
         <?php ;
     }
+    function __destruct(){
+        ?>
+        </div>
+        <?php 
+    }
 }
 
 class searchView extends listView   //顯示所有留言的子類
 {
     function __construct($search = NULL)//一呼叫就要做的
     {?>
+    	<div class='content'>
     	<form action="index.php" method="get">
                 <table cellpadding="10" width="600" border="1" align="center">
                     <tr>
@@ -90,6 +173,11 @@ class searchView extends listView   //顯示所有留言的子類
     		<br/>
     <?php   
     }
+    function __destruct(){
+        ?>
+        </div>
+        <?php 
+    }
 }
 
 class postView   //顯示所有留言的子類
@@ -97,6 +185,7 @@ class postView   //顯示所有留言的子類
     function __construct($msg_array, $title)
     {
         ?>
+        <div class='content'>
         <h3><?php echo $title=="post" ? "新增" : "修改" ?>留言</h3>
         	<form action="index.php?action=<?php echo $title?>" method="post">
             <table  style="border:3px #000000 dashed;" cellpadding="10" width="600" border="1" align="center">
@@ -140,16 +229,27 @@ class postView   //顯示所有留言的子類
             </form>
     <?php 
     }
+    function __destruct(){
+        ?>
+        </div>
+        <?php 
+    }
 }
 
 class modifyView extends postView{   //extends表示繼承
     function __construct ($msg_array) { 
         parent::__construct($msg_array, "modify");
     }
+    function __destruct(){
+        ?>
+        </div>
+        <?php 
+    }
 }
 
 class deleteView {
-    function __construct ($value) {
+    function __construct ($value) {?>
+        <div class='content'><?php 
         if(isset($_GET['id'])){
         ?>
             <form action="index.php?action=delete" method="post">
@@ -186,6 +286,232 @@ class deleteView {
 		
 		<?php
         }
+    }
+    function __destruct(){
+        ?>
+        </div>
+        <?php 
+    }
+}
+
+class loginView{
+    function __construct ($member_array) {
+        if($member_array["success"] == 0){?>
+        	<div class='login_content'>
+        		<h2>會員登入</h2>
+        		<form action="index.php?action=login" method="post">
+            		<table  style="border:3px #000000 dashed;" cellpadding="10" width="400" border="1" align="center">
+            			<tr>
+            				<td>
+                               	 帳號：
+                            </td>
+                            <td>
+                                <input type="text" name="mb_id" style="font-size:20px" value="<?php echo $member_array["mb_id"] ?>">
+                                <br/>
+                                <?php echo $member_array["errid"] ?>
+                            </td>
+            			</tr>
+            			<tr>
+            				<td>
+                               	 密碼：
+                            </td>
+                            <td>
+                                <input type="password" name="mb_pwd" style="font-size:20px" value="<?php echo $member_array["mb_pwd"] ?>">
+                                <br/>
+                                <?php echo $member_array["errpwd"] ?>
+                            </td>
+            			</tr>
+            		</table>
+            		<br/>
+            		<button type="submit">登入</button>
+        		</form>
+        		<br/>
+        		<br/>
+        		還沒有帳號嗎?&nbsp;&nbsp;<button onclick="index.php?action=signup">註冊去→</button>
+    	<?php 
+        }elseif($member_array["success"] == 1){?>
+            <div class='login_content'>
+            <h2>會員登入</h2>
+        	登入成功!!&nbsp;&nbsp;將於3秒後跳轉至首頁
+    		<?php 
+    		header("Refresh: 2; URL=index.php");
+        }
+    }
+    function __destruct(){
+        ?>
+        </div>
+        <?php 
+    }
+}
+
+class signupView{
+    function __construct ($signup_array) {
+        if($signup_array["success"] == 0){?>
+        	<div class='login_content'>
+        		<h2>會員註冊</h2>
+        		<form action="index.php?action=signup" method="post">
+            		<table  style="border:3px #000000 dashed;" cellpadding="10" width="400" border="1" align="center">
+            			<tr>
+            				<td>
+                               	 帳號：
+                            </td>
+                            <td>
+                                <input type="text" name="set_id" style="font-size:20px" value="<?php echo $signup_array["set_id"] ?>">
+                                <br/>
+                                <?php echo $signup_array["errid"] ?>
+                            </td>
+            			</tr>
+            			<tr>
+            				<td>
+                               	 密碼：
+                            </td>
+                            <td>
+                                <input type="password" name="set_pwd" style="font-size:20px" value="<?php echo $signup_array["set_pwd"] ?>">
+                                <br/>
+                                <?php echo $signup_array["errpwd"] ?>
+                            </td>
+            			</tr>
+            			<tr>
+            				<td>
+                               	 確認密碼：
+                            </td>
+                            <td>
+                                <input type="password" name="check_pwd" style="font-size:20px" value="<?php echo $signup_array["check_pwd"] ?>">
+                                <br/>
+                                <?php echo $signup_array["errckpwd"] ?>
+                            </td>
+            			</tr>
+            			<tr>
+            				<td>
+                               	 email：
+                            </td>
+                            <td>
+                                <input type="email" name="set_email" style="font-size:20px" value="<?php echo $signup_array["set_email"] ?>">
+                                <br/>
+                                <?php echo $signup_array["erremail"] ?>
+                            </td>
+            			</tr>
+            		</table>
+            		<br/>
+            		<button type="submit">註冊</button>
+        		</form>
+    	<?php 
+        }elseif($signup_array["success"]){?>
+            <div class='login_content'>
+            <h2>會員註冊</h2>
+        	註冊成功!!&nbsp;&nbsp;將於3秒後跳轉至登入頁面
+    		<?php 
+    		header("Refresh: 2; URL=index.php?action=login");
+        }
+    }
+    function __destruct(){
+        ?>
+        </div>
+        <?php 
+    }
+}
+class modifyMyDataView {
+    function __construct ($mb_array) {?>
+        <div class='content'>
+        	<h2>會員專區</h2>
+            <form action="index.php?action=modifyMyData" method="post">
+            	<table class='cont_tb'>
+    				<tr>
+    					<td colspan="2">
+    						修改會員資料
+    					</td>
+    				</tr>
+    				<tr>
+    					<td>
+    						email：
+    					</td>
+                        <td width="450">
+                            <input type="text" name="new_email" value="<?php echo $mb_array["email"] ?>">
+                        </td>
+                    </tr>
+    				<tr>
+    					<td colspan="2">
+        					<button type="submit">確認修改</button>
+    					</td>
+    				</tr>
+    			</table>
+    		</form>
+		
+		<?php
+    }
+    function __destruct(){
+        ?>
+        </div>
+        <?php 
+    }
+}
+class modifyMyPwdView {
+    function __construct ($mb_array) {?>
+        <div class='content'>
+        	<h2>會員專區</h2>
+            <form action="index.php?action=modifyMyPwd" method="post">
+            	<table class='cont_tb'>
+    				<tr>
+    					<td colspan="2">
+    						修改密碼
+    					</td>
+    				</tr>
+    				<tr>
+    					<td>
+    						目前密碼：
+    					</td>
+                        <td width="450">
+                            <input type="password" name="old_mb_pwd">
+                            <br/>
+                            <?php echo $mb_array["erroldpwd"] ?>	
+                        </td>
+                    </tr>
+                    <tr>
+    					<td>
+    						新密碼：
+    					</td>
+                        <td width="450">
+                            <input type="password" name="new_mb_pwd">
+                            <br/>
+                            <?php echo $mb_array["errpwd"] ?>
+                        </td>
+                    </tr>
+                    <tr>
+    					<td>
+    						確認新密碼：
+    					</td>
+                        <td width="450">
+                            <input type="password" name="new_check_pwd">
+                            <br/>
+                            <?php echo $mb_array["errckpwd"] ?>
+                        </td>
+                    </tr>
+    				<tr>
+    					<td colspan="2" >
+        					<button type="submit">確認修改密碼</button>
+    					</td>
+    				</tr>
+    			</table>
+    		</form>
+		
+		<?php
+    }
+    function __destruct(){
+        ?>
+        </div>
+        <?php 
+    }
+}
+class listMyMsgView extends listView {
+    function __construct () {
+        parent::__construct();?>
+        	<h2>會員專區-我的留言</h2>
+		<?php
+    }
+    function __destruct(){
+        ?>
+        </div>
+        <?php 
     }
 }
 ?>

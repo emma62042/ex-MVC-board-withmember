@@ -1,4 +1,4 @@
-ex-MVC-board
+ex-MVC-board-withmember
 ===
 
 ## Table of Contents
@@ -7,29 +7,43 @@ ex-MVC-board
 
 ## Beginners Guide
 
-center88留言板 with MVC  
-* 2019/11/06  
-    * 利用[範例](https://www.itread01.com/p/962428.html)完成list, search部分  
-* 2019/11/07  
-    * 修改css id→class  
-    * ↑--完成list, search部分--↑  
-    * 將原本放在controller的pageArray function移到model  
-    * 將view的View大父類別去掉, 由search繼承list(因為輸出大都一樣)  
-    * 加入新增留言(post)的功能，使用isset確認是否有$_POST的資料進來(是否第一次進到新增頁面)  
-    * "新增完成"按鈕按下後isset通過，用!empty確認是否都有值，若有空值則回到原本畫面並在欄位輸出"請輸入xxx"的提醒文字
-    * 若!empty通過則進入sql,query，query成功顯示"新增成功"字樣，3秒後跳回首頁。
-    * ↑--完成post部分--↑
-    * 修改部分使用與新增相同的view，在model的部分，考慮到安全性的問題，"確認"修改寫進資料庫的sql由$_POST觸發，一開始的修改畫面則由$_GET觸發。
-    * 將modifyNote分成兩部分，修改前畫面/修改送出動作與修改後畫面
-    * 修改前畫面由$_GET開始，從資料庫取出msg內容放到msg_array，回傳msg_array給view
-    * 若接收到$_POST["id"]則進入update資料庫，update成功後秀出"修改成功"並保持欄位值，3秒後跳回首頁
-    * ↑--完成modify部分--↑
-    * 刪除部分另外寫View，一樣由於安全性的問題，希望"確認"刪除資料庫的sql由$_POST觸發，因此加入了確認刪除畫面，由$_GET觸發。
-    * 沿用list的table view，在下方加入"確認刪除"按鈕
-    * 大致上流程與修改相同，從資料庫取出資料秀出，從$_POST接收確認id★
-    * 由於刪除後VIEW的table會抓不到資料，在view那裏加入了if(isset($_GET["id"]))，有id則秀table
-    ，沒有則顯示"刪除成功/失敗"
-    * ↑--完成delete部分--↑
+center88留言板 with MVC + member  
+* 2019/11/08  
+    * 複製ex-MVC-board
+    * 將index當中的sign, banner移到class View{}中, sidebar寫成函式供各個class function呼叫
+    * --------------------------------------------------------------------------------
+    * View加入會員登入畫面，先加入欄位是否空判斷
+    * 加入"註冊去"按鈕
+    * View加入註冊畫面
+    * 直接建立center88_member表
+    * 在center88_board表中加入mb_id欄位(用來關聯member)
+    * 加入註冊欄位判斷，'密碼'和'確認密碼'欄位是否相同的判斷
+    * 條件都符合後加入sql query
+    * 秀出"註冊成功"
+    * --------------------------------------------------------------------------------
+    * 會員登入的條件有:會員帳號不可跟資料庫內重複、密碼與確認密碼欄位相同
+    * 會員登入的欄位條件都符合後，加入sql query，並將mb_id存於$_SESSION["login_id"]中★
+    * 新增會員登入/會員專區的<div class="sign">內容
+    * View製作會員專區畫面
+    * 新增會員專區用的sidebar "修改資料" "修改密碼" "我的留言" "回首頁"
+    * 會員專區的首頁在"修改資料"
+    * ---------------------------------------------------------------------------------
+    * 【修改資料頁面】
+    * 從資料庫中取出同id的除id、密碼外的資料，大致跟修改留言很像(id=$_SESSION["login_id"])
+    * 修改後執行sql query UPDATE進去
+    * 【修改密碼頁面】
+    * 有 "目前密碼" "新密碼" "確認新密碼" 欄位
+    * 通過條件是:目前密碼 == mb_pwd 、"新密碼" "確認新密碼"相同
+    * 修改後執行sql query UPDATE進去
+    * 【我的留言頁面】
+    * 利用留言板首頁listView的模板，加入WHERE mb_id = $_SESSION["login_id"]
+    * 沿用首頁的分頁功能
+    * 可以對留言的mb_id == $_SESSION["login_id"]的留言顯示修改與刪除按鈕(更改listView)★
+    * ---------------------------------------------------------------------------------
+    * 修改首頁viewMessage function 若留言mb_id == $_SESSION["login_id"]則顯示修改與刪除按鈕
+    * ##
+    未做工作:將新增功能納入會員專屬，function整理
+    
     
     
 

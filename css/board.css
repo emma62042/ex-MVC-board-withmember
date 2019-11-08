@@ -22,9 +22,11 @@
 
 .sign {
     background-color:#3E4E50;
-    height: 35px;
-    width: 1000px;
+    color: white;
+    height: 20px;
+    width: 990px;
     margin: 10px 15px 10px 15px;
+    padding: 5px;
     float: left;
     text-align:right;
 }
@@ -63,6 +65,17 @@
     border:5px #634624 solid;
     height: 930px;
     width: 710px;
+    float: right;
+    padding: 30px;
+    margin: 10px 15px 10px 0px;
+    text-align: center;
+}
+
+.login_content {
+    background-color:blanchedalmond;
+    border:5px #634624 solid;
+    height: 700px;
+    width: 930px;
     float: right;
     padding: 30px;
     margin: 10px 15px 10px 0px;
