@@ -42,7 +42,16 @@ center88留言板 with MVC + member
     * ---------------------------------------------------------------------------------
     * 修改首頁viewMessage function 若留言mb_id == $_SESSION["login_id"]則顯示修改與刪除按鈕
     * ##
-    未做工作:將新增功能納入會員專屬，function整理，登出動作
+* 2019/11/11
+    * 【登出功能】
+    * 使用session_destroy();刪除所有session★
+    * 回到首頁
+    * 【限制登入者使用】
+    * 在View這個父類別中，新增一個function pleaseLogin()，為"請先登入"的content區塊畫面
+    * 在各個controller 呼叫model之前，確認isset $_SESSION["login_id"]，若未登入則顯示(view) pleaseLogin()
+    * 新增、修改、刪除、會員專區的功能都限制會員使用。
+    * ##
+    未做工作:function整理，看要不要拆成兩個mvc
     
     
     

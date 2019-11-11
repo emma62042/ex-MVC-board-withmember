@@ -11,14 +11,14 @@ class View {
     function sign() {
         if(empty($_SESSION["login_id"])){?>
             <div class='sign'>
-            	<a>會員登入</a>
+            	<a href="index.php?action=login">會員登入</a>
         	</div>
         	<?php 
         }else{?>
             <div class='sign'>
             	<span>歡迎<?php echo $_SESSION["login_id"] ; ?></span>&nbsp;&nbsp;
            		<a href="index.php?action=modifyMyData">會員專區</a>&nbsp;
-           		<a>登出→</a>
+           		<a href="index.php?action=logout">登出→</a>
             </div>
   <?php }
     }
@@ -77,6 +77,14 @@ class View {
     <?php
         }
     }
+    
+    function pleaseLogin() {?>
+        <div class='content'>
+        <h2>請先登入!</h2>
+        <button onclick="location.href='index.php?action=login'">登入</button>
+        </div>
+    <?php     
+    }
 }
 class listView    //顯示所有留言的子類
 {
@@ -115,7 +123,7 @@ class listView    //顯示所有留言的子類
 					<?php echo $value["nickname"] . "&nbsp;發表於&nbsp;" . $value["time"] ?>
 					</td>
 				</tr>
-				<?php if($value["mb_id"] == $_SESSION["login_id"] ){?>
+				<?php if(isset($_SESSION["login_id"]) && $value["mb_id"] == $_SESSION["login_id"] ){?>
 				<tr>
 					<td colspan="2" style="text-align: right;">
 						<button type="button" onclick="location.href='index.php?action=delete&id=<?php echo $value["msg_id"];?>'">刪除</button>
@@ -183,8 +191,7 @@ class searchView extends listView   //顯示所有留言的子類
 class postView   //顯示所有留言的子類
 {
     function __construct($msg_array, $title)
-    {
-        ?>
+    {?>
         <div class='content'>
         <h3><?php echo $title=="post" ? "新增" : "修改" ?>留言</h3>
         	<form action="index.php?action=<?php echo $title?>" method="post">
@@ -227,7 +234,7 @@ class postView   //顯示所有留言的子類
                 </tr>
             </table>
             </form>
-    <?php 
+    	<?php
     }
     function __destruct(){
         ?>

@@ -84,6 +84,10 @@
                             $controller = new listMyMsgController($dao, $page = 1);
                         }
                         break;
+                    case "logout":
+                        session_destroy();
+                        header("Location:index.php");
+                        break;
                     default:
                         $controller = new listController($dao);
                         break; //預設為顯示留言

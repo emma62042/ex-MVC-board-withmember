@@ -1,6 +1,5 @@
 <?php
 
-$_SESSION["login"] = 0;
 //! Controller
 /*
  * 控制器將$_GET['action']中不同的引數(list、post、delete)
@@ -83,8 +82,13 @@ class postController extends Controller{
     function __construct ($dao) {//連資料庫
         parent::__construct($dao);//建立model
         $this->view->sidebar();
-        $msg_array = $this->model->postNote();//先收看看有沒有資料近來
-        $this->view = new postView($msg_array, "post");
+        if(!isset($_SESSION["login_id"])){
+            $this->view->pleaseLogin();
+        }
+        else{
+            $msg_array = $this->model->postNote();//先收看看有沒有資料近來
+            $this->view = new postView($msg_array, "post");
+        }
     }
 }
 //用於控制修改留言的子類
@@ -92,8 +96,13 @@ class modifyController extends Controller{
     function __construct ($dao) {//連資料庫
         parent::__construct($dao);//建立model
         $this->view->sidebar();
-        $msg_array = $this->model->modifyNote();//先收看看有沒有資料近來
-        $this->view = new modifyView($msg_array);
+        if(!isset($_SESSION["login_id"])){
+            $this->view->pleaseLogin();
+        }
+        else{
+            $msg_array = $this->model->modifyNote();//先收看看有沒有資料近來
+            $this->view = new modifyView($msg_array);
+        }
     }
 }
 
@@ -101,8 +110,13 @@ class deleteController extends Controller{
     function __construct ($dao) {
         parent::__construct($dao);
         $this->view->sidebar();
-        $value = $this->model->deleteNote();
-        $this->view = new deleteView($value);
+        if(!isset($_SESSION["login_id"])){
+            $this->view->pleaseLogin();
+        }
+        else{
+            $value = $this->model->deleteNote();
+            $this->view = new deleteView($value);
+        }
     }
 }
 class loginController extends Controller{
@@ -123,27 +137,42 @@ class modifyMyDataController extends Controller{
     function __construct ($dao) {
         parent::__construct($dao);
         $this->view->sidebar($member = 1);
-        $md_array = $this->model->modifyMyDataNote();
-        $this->view = new modifyMyDataView($md_array);
+        if(!isset($_SESSION["login_id"])){
+            $this->view->pleaseLogin();
+        }
+        else{
+            $md_array = $this->model->modifyMyDataNote();
+            $this->view = new modifyMyDataView($md_array);
+        }
     }
 }
 class modifyMyPwdController extends Controller{
     function __construct ($dao) {
         parent::__construct($dao);
         $this->view->sidebar($member = 1);
-        $mdpwd_array = $this->model->modifyMyPwdNote();
-        $this->view = new modifyMyPwdView($mdpwd_array);
+        if(!isset($_SESSION["login_id"])){
+            $this->view->pleaseLogin();
+        }
+        else{
+            $mdpwd_array = $this->model->modifyMyPwdNote();
+            $this->view = new modifyMyPwdView($mdpwd_array);
+        }
     }
 }
 class listMyMsgController extends Controller{
     function __construct ($dao, $page) {
         parent::__construct($dao);
         $this->view->sidebar($member = 1);
-        $page_array = $this->model->pageArray($page, "listMyMsg");
-        $notes = $this->model->listMyMsgNote($page, $page_array["per"]);
-        $this->view = new listMyMsgView();
-        $this->view->viewMsgResult($notes);
-        $this->view->viewPage("listMyMsg", $page_array);
+        if(!isset($_SESSION["login_id"])){
+            $this->view->pleaseLogin();
+        }
+        else{
+            $page_array = $this->model->pageArray($page, "listMyMsg");
+            $notes = $this->model->listMyMsgNote($page, $page_array["per"]);
+            $this->view = new listMyMsgView();
+            $this->view->viewMsgResult($notes);
+            $this->view->viewPage("listMyMsg", $page_array);
+        }
     }
 }
 

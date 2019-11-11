@@ -78,8 +78,8 @@ class Model {
                 $msg_array["nickname"] = $_POST["nickname"];
                 $msg_array["msg_title"] = $_POST["msg_title"];
                 $msg_array["msg"] = $_POST["msg"];
-                $sql = "INSERT INTO center88_board (nickname, msg_title, msg)
-                        VALUES ('" . $msg_array["nickname"] . "' , '" . $msg_array["msg_title"] . "' , '" . $msg_array["msg"] . "' )";
+                $sql = "INSERT INTO center88_board (nickname, msg_title, msg, mb_id)
+                        VALUES ('" . $msg_array["nickname"] . "' , '" . $msg_array["msg_title"] . "' , '" . $msg_array["msg"] . "' , '" . $_SESSION["login_id"] . "' )";
                 
                 if ( $this->dao->query($sql) ){
                     echo "新增成功!!";
