@@ -50,7 +50,7 @@ center88留言板 with MVC + member
     * 在View這個父類別中，新增一個function pleaseLogin()，為"請先登入"的content區塊畫面
     * 在各個controller 呼叫model之前，確認isset $_SESSION["login_id"]，若未登入則顯示(view) pleaseLogin()
     * 新增、修改、刪除、會員專區的功能都限制會員使用。
-    * 【將<div class="content">拆出】
+    * 【將div class="content"拆出】
     * 將div header設為class建構子，其餘動作設為class 中的 function
     ##
     未做工作:function整理，看要不要拆成兩個mvc
