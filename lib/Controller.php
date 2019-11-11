@@ -22,20 +22,12 @@ class Controller {
         $this->view = new View();
         $this->view->sign();
         $this->view->banner();
-        
-    }
-    
-    function getView() {    //獲取View函式
-        //返回檢視物件view
-        //對應特定功能的Controller子類生成對應的View子類的物件
-        //通過該函式返回給外部呼叫者
-        return $this->view;
     }
     
 }
 //用於控制顯示留言列表的子類
 class listController extends Controller{   //extends表示繼承
-    function __construct ($dao, $page) { //建立model
+    function __construct (&$dao, $page) { //建立model
         parent::__construct($dao);  //繼承其父類的建構函式然後執行(執行1號)
         //該行的含義可以簡單理解為:
         //將其父類的建構函式程式碼複製過來
@@ -53,7 +45,7 @@ class listController extends Controller{   //extends表示繼承
     }
 }
 class searchController extends Controller{   //extends表示繼承
-    function __construct ($dao, $page, $search) { //建立model
+    function __construct (&$dao, $page, $search) { //建立model
         parent::__construct($dao);  //繼承其父類的建構函式
         //該行的含義可以簡單理解為:
         //將其父類的建構函式程式碼複製過來
@@ -86,83 +78,90 @@ class postController extends Controller{
             $this->view->pleaseLogin();
         }
         else{
+            $this->view = new postView();
             $msg_array = $this->model->postNote();//先收看看有沒有資料近來
-            $this->view = new postView($msg_array, "post");
+            $this->view->post($msg_array, "post");
         }
     }
 }
 //用於控制修改留言的子類
 class modifyController extends Controller{
-    function __construct ($dao) {//連資料庫
+    function __construct (&$dao) {//連資料庫
         parent::__construct($dao);//建立model
         $this->view->sidebar();
         if(!isset($_SESSION["login_id"])){
             $this->view->pleaseLogin();
         }
         else{
+            $this->view = new modifyView();
             $msg_array = $this->model->modifyNote();//先收看看有沒有資料近來
-            $this->view = new modifyView($msg_array);
+            $this->view->post($msg_array, "modify");
         }
     }
 }
 
 class deleteController extends Controller{
-    function __construct ($dao) {
+    function __construct (&$dao) {
         parent::__construct($dao);
         $this->view->sidebar();
         if(!isset($_SESSION["login_id"])){
             $this->view->pleaseLogin();
         }
         else{
+            $this->view = new deleteView();
             $value = $this->model->deleteNote();
-            $this->view = new deleteView($value);
+            $this->view->delete($value);
         }
     }
 }
 class loginController extends Controller{
-    function __construct ($dao) {
+    function __construct (&$dao) {
         parent::__construct($dao);
+        $this->view = new loginView();
         $member_array = $this->model->loginNote();
-        $this->view = new loginView($member_array);
+        $this->view->login($member_array);
     }
 }
 class signupController extends Controller{
-    function __construct ($dao) {
+    function __construct (&$dao) {
         parent::__construct($dao);
+        $this->view = new signupView();
         $signup_array = $this->model->signupNote();
-        $this->view = new signupView($signup_array);
+        $this->view->signup($signup_array);
     }
 }
 class modifyMyDataController extends Controller{
-    function __construct ($dao) {
+    function __construct (&$dao) {
         parent::__construct($dao);
-        $this->view->sidebar($member = 1);
+        $this->view->sidebar();
         if(!isset($_SESSION["login_id"])){
             $this->view->pleaseLogin();
         }
         else{
+            $this->view = new modifyMyDataView();
             $md_array = $this->model->modifyMyDataNote();
-            $this->view = new modifyMyDataView($md_array);
+            $this->view->modifyMyData($md_array);
         }
     }
 }
 class modifyMyPwdController extends Controller{
-    function __construct ($dao) {
+    function __construct (&$dao) {
         parent::__construct($dao);
-        $this->view->sidebar($member = 1);
+        $this->view->sidebar();
         if(!isset($_SESSION["login_id"])){
             $this->view->pleaseLogin();
         }
         else{
+            $this->view = new modifyMyPwdView();
             $mdpwd_array = $this->model->modifyMyPwdNote();
-            $this->view = new modifyMyPwdView($mdpwd_array);
+            $this->view->modifyMyPwd($mdpwd_array);
         }
     }
 }
 class listMyMsgController extends Controller{
-    function __construct ($dao, $page) {
+    function __construct (&$dao, $page) {
         parent::__construct($dao);
-        $this->view->sidebar($member = 1);
+        $this->view->sidebar();
         if(!isset($_SESSION["login_id"])){
             $this->view->pleaseLogin();
         }

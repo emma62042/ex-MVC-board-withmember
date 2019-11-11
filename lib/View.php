@@ -17,7 +17,6 @@ class View {
         }else{?>
             <div class='sign'>
             	<span>歡迎<?php echo $_SESSION["login_id"] ; ?></span>&nbsp;&nbsp;
-           		<a href="index.php?action=modifyMyData">會員專區</a>&nbsp;
            		<a href="index.php?action=logout">登出→</a>
             </div>
   <?php }
@@ -28,15 +27,16 @@ class View {
 		</div>
     <?php    
     }
-    function sidebar($member = 0) {
-        if($member == 0){?>
+    function sidebar() {?>
 			<div class='sidebar'>
                 <table class='bar_tb'>
+          <?php if(isset($_SESSION["login_id"])){?>
                     <tr>
                         <td>
                             <a href="index.php?action=post">新增留言</a>
                         </td>
                     </tr>
+          <?php }?>
                     <tr>
                         <td>
                             <a href="index.php?action=search">查詢留言</a>
@@ -47,11 +47,12 @@ class View {
                             <a href="index.php?action=list">回首頁</a>
                         </td>
                     </tr>
-                </table>
-            </div>
-<?php }elseif($member == 1){?>
-			<div class='sidebar'>
-                <table class='bar_tb'>
+          <?php if(isset($_SESSION["login_id"])){?>
+          			<tr>
+                        <td style="border-style:none;color:white;">
+							---會員專區---
+                        </td>
+                    </tr>
                     <tr>
                         <td>
                             <a href="index.php?action=modifyMyData">修改資料</a>
@@ -67,15 +68,10 @@ class View {
                             <a href="index.php?action=listMyMsg">我的留言</a>
                         </td>
                     </tr>
-                    <tr>
-                        <td>
-                            <a href="index.php?action=list">回首頁</a>
-                        </td>
-                    </tr>
+          <?php }?>
                 </table>
             </div>
-    <?php
-        }
+	<?php 
     }
     
     function pleaseLogin() {?>
@@ -93,7 +89,7 @@ class listView    //顯示所有留言的子類
         <div class='content'>
         <?php 
     }
-    function viewMsgResult($notes) {
+    function viewMsgResult(&$notes) {
         foreach ($notes as $value)
         {
             ?>
@@ -190,9 +186,12 @@ class searchView extends listView   //顯示所有留言的子類
 
 class postView   //顯示所有留言的子類
 {
-    function __construct($msg_array, $title)
-    {?>
+    function __construct(){?>
         <div class='content'>
+    <?php 
+    }
+    function post(&$msg_array, $title){
+    ?>
         <h3><?php echo $title=="post" ? "新增" : "修改" ?>留言</h3>
         	<form action="index.php?action=<?php echo $title?>" method="post">
             <table  style="border:3px #000000 dashed;" cellpadding="10" width="600" border="1" align="center">
@@ -244,8 +243,8 @@ class postView   //顯示所有留言的子類
 }
 
 class modifyView extends postView{   //extends表示繼承
-    function __construct ($msg_array) { 
-        parent::__construct($msg_array, "modify");
+    function __construct () { 
+        parent::__construct();
     }
     function __destruct(){
         ?>
@@ -255,10 +254,12 @@ class modifyView extends postView{   //extends表示繼承
 }
 
 class deleteView {
-    function __construct ($value) {?>
-        <div class='content'><?php 
-        if(isset($_GET['id'])){
-        ?>
+    function __construct(){?>
+        <div class='content'>
+    <?php
+    }
+    function delete (&$value) {
+        if(isset($_GET['id'])){?>
             <form action="index.php?action=delete" method="post">
             	<table class='cont_tb'>
     				<tr>
@@ -302,9 +303,12 @@ class deleteView {
 }
 
 class loginView{
-    function __construct ($member_array) {
+    function __construct(){?>
+        <div class='login_content'>
+    <?php
+    }
+    function login (&$member_array) {
         if($member_array["success"] == 0){?>
-        	<div class='login_content'>
         		<h2>會員登入</h2>
         		<form action="index.php?action=login" method="post">
             		<table  style="border:3px #000000 dashed;" cellpadding="10" width="400" border="1" align="center">
@@ -334,10 +338,9 @@ class loginView{
         		</form>
         		<br/>
         		<br/>
-        		還沒有帳號嗎?&nbsp;&nbsp;<button onclick="index.php?action=signup">註冊去→</button>
+        		還沒有帳號嗎?&nbsp;&nbsp;<button onclick="location.href='index.php?action=signup'">註冊去→</button>
     	<?php 
         }elseif($member_array["success"] == 1){?>
-            <div class='login_content'>
             <h2>會員登入</h2>
         	登入成功!!&nbsp;&nbsp;將於3秒後跳轉至首頁
     		<?php 
@@ -352,9 +355,12 @@ class loginView{
 }
 
 class signupView{
-    function __construct ($signup_array) {
+    function __construct(){?>
+        <div class='login_content'>
+    <?php
+    }
+    function signup (&$signup_array) {
         if($signup_array["success"] == 0){?>
-        	<div class='login_content'>
         		<h2>會員註冊</h2>
         		<form action="index.php?action=signup" method="post">
             		<table  style="border:3px #000000 dashed;" cellpadding="10" width="400" border="1" align="center">
@@ -404,7 +410,6 @@ class signupView{
         		</form>
     	<?php 
         }elseif($signup_array["success"]){?>
-            <div class='login_content'>
             <h2>會員註冊</h2>
         	註冊成功!!&nbsp;&nbsp;將於3秒後跳轉至登入頁面
     		<?php 
@@ -418,8 +423,11 @@ class signupView{
     }
 }
 class modifyMyDataView {
-    function __construct ($mb_array) {?>
+    function __construct(){?>
         <div class='content'>
+    <?php
+    }
+    function modifyMyData (&$mb_array) {?>
         	<h2>會員專區</h2>
             <form action="index.php?action=modifyMyData" method="post">
             	<table class='cont_tb'>
@@ -453,8 +461,11 @@ class modifyMyDataView {
     }
 }
 class modifyMyPwdView {
-    function __construct ($mb_array) {?>
+    function __construct(){?>
         <div class='content'>
+    <?php
+    }
+    function modifyMyPwd (&$mb_array) {?>
         	<h2>會員專區</h2>
             <form action="index.php?action=modifyMyPwd" method="post">
             	<table class='cont_tb'>
