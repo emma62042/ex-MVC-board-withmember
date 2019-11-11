@@ -11,7 +11,7 @@ center88留言板 with MVC + member
 * 2019/11/08  
     * 複製ex-MVC-board
     * 將index當中的sign, banner移到class View{}中, sidebar寫成函式供各個class function呼叫
-    * ##
+    ##
     * View加入會員登入畫面，先加入欄位是否空判斷
     * 加入"註冊去"按鈕
     * View加入註冊畫面
@@ -40,7 +40,8 @@ center88留言板 with MVC + member
     * 沿用首頁的分頁功能
     * 可以對留言的mb_id == $_SESSION["login_id"]的留言顯示修改與刪除按鈕(更改listView)★
     ##
-    * 修改首頁viewMessage function 若留言mb_id == $_SESSION["login_id"]則顯示修改與刪除按鈕
+    * 修改首頁viewMessage function 若留言mb_id == $_SESSION["login_id"]則顯示修改與刪除按鈕  
+    
 * 2019/11/11
     * 【登出功能】
     * 使用session_destroy();刪除所有session★
